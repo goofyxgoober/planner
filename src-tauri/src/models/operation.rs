@@ -182,6 +182,9 @@ pub async fn apply_op(dag_map: &mut HashMap<String, Dag>,pool:&sqlx::SqlitePool,
             
             
         }
+        Op::RemoveEdge{predecessor_id,successor_id} =>{
+            
+        }
         Op::MoveNode { id, x, y } => {
             let dag = get_valid_dag(dag_map, goal_id, base_version)?;
             let mut node = dag.get_node(id)?; 
@@ -201,18 +204,7 @@ pub async fn apply_op(dag_map: &mut HashMap<String, Dag>,pool:&sqlx::SqlitePool,
             next_version+=1;
             inverse_ops.push(Op::ModifyNode { id: (String::from(id)), json_str: (prev_json_str) });
         }
-        Op::Batch { ops } => {
-            for sub_op in ops {
-                next_version+=1;
-                let (inv_op,_,_) = Box::pin(apply_op(dag_map, pool,sub_op,&next_version,goal_id)).await?; // recursion needs boxing (async fn)
-                inverse_ops.extend(inv_op);
-            }
-            let dag =  get_valid_dag(dag_map, goal_id, base_version)?;
-            return Ok((inverse_ops,next_version,dag.to_snapshot()));
-
-    }
-        // RemoveNode, RemoveEdge, RenameNode similarly...
-        _ => todo!(),
+        Op::Batch { ops } => !unreachable!(),
     }
     Ok((inverse_ops,next_version,snapshot))
 }

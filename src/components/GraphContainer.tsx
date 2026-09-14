@@ -3,7 +3,7 @@ import type { Node, Edge } from "@xyflow/react";
 import { fetchSnapshot } from "../api/fetchSnapshot";
 import type { Snapshot, SnapshotVersion } from "../types";
 import { GraphView } from "../graph/GraphView";
-import { graphStore } from "../state/GraphStore";
+import { graphStore } from "../state/graphStore";
 import { useStore } from "zustand";
 
 const initialNodes: Node[] = [
