@@ -57,10 +57,9 @@ export const GraphContainer: React.FC<GraphContainerProps> = ({
   goalId,
   //loading=false,
 }) => {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadGraph,getGraph] = useStore(graphStore,(state)=>[state.loadGraph,state.getGraph]);
+  const [snapshot,setSnapshot] =useState<SnapshotVersion>();
   const graphErrors = useStore(graphStore, (state)=>state.errors[goalId]);
   useEffect(() => {
     let cancelled = false;
@@ -73,13 +72,7 @@ export const GraphContainer: React.FC<GraphContainerProps> = ({
         cancelled=true;
       }
       if (cancelled) return;
-
-      if (snapshotVer) {
-        const { nodes: flowNodes, edges: flowEdges } = snapshotToFlow(snapshotVer);
-        setNodes(flowNodes);
-        setEdges(flowEdges);
-      }
-
+      setSnapshot(snapshotVer);
       setLoading(false);
     }
 
@@ -89,12 +82,12 @@ export const GraphContainer: React.FC<GraphContainerProps> = ({
     };
   }, []);
 
+  if(snapshot===undefined){
+    return (<div>loading...</div>)
+  }
   return (
     <GraphView
-      nodes={nodes}
-      edges={edges}
-      setNodes={setNodes}
-      setEdges={setEdges}
+      snapshot={snapshot}
       loading={loading}
     />
   );

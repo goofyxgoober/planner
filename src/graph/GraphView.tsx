@@ -18,14 +18,16 @@ import DagreNodePositioning, {
 } from "../layout/DagreNodePositioning";
 import "@xyflow/react/dist/style.css";
 
+import type { Snapshot, SnapshotVersion } from "../types";
+ 
+
 interface GraphViewProps {
-  nodes: Node[];
-  edges: Edge[];
-  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+  snapshot: SnapshotVersion;
   loading?: boolean;
   layoutOptions?: DagreGraphOptions;
 }
+
+
 
 const defaultLayoutOptions: DagreGraphOptions = {
   rankdir: "TB",
@@ -33,15 +35,53 @@ const defaultLayoutOptions: DagreGraphOptions = {
   ranksep: 50,
 };
 
+
+
+
+function snapshotToFlow({snapshot,}: SnapshotVersion): [ Node[], Edge[] ] {
+  const nodes: Node[] = Object.values(snapshot.nodes).map((n) => {
+    // 1. Safely check if the API provided actual numbers for x and y
+    // We use typeof instead of truthiness so we don't accidentally ignore a valid 0 coordinate
+    const hasSavedPosition = typeof n.x === "number" && typeof n.y === "number";
+
+    return {
+      id: n.id,
+      position: { x: n.x ?? 0, y: n.y ?? 0 },
+      data: { 
+        label: n.item.title, 
+        nodeType: n.nodeType,
+        // 2. Pass the flag directly into the node's data payload
+        layouted: hasSavedPosition 
+      },
+    };
+  });
+
+  const edges: Edge[] = Object.entries(snapshot.successors).flatMap(
+    ([sourceId, targetIds]) =>
+      targetIds.map((targetId) => ({
+        id: `${sourceId}-${targetId}`,
+        source: sourceId,
+        target: targetId,
+      }))
+  );
+
+  return [ nodes, edges ];
+}
+
+
+
 export const GraphView: React.FC<GraphViewProps> = ({
-  nodes,
-  edges,
-  setNodes,
-  setEdges,
+  snapshot,
   loading = false,
   layoutOptions = defaultLayoutOptions,
 }) => {
   const [, setViewIsFit] = useState<boolean>(false);
+  const [initialNodes,initialEdges] = snapshotToFlow(snapshot);
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+
+
+
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>{
