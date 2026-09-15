@@ -15,7 +15,7 @@ type GraphStoreActions = {
     loadGraph: (goalId:string)=> Promise<void>
     getGraph: (goalId:string)=> SnapshotVersion | undefined
     setGraph: (goalId:string,spv:SnapshotVersion) => void
-    proposeOp: (goalId:string,op:Op) => void
+    proposeOp: (goalId:string,op:Op) => Promise<Op|undefined>
 }
 
 type GraphStore = GraphStoreState & GraphStoreActions
@@ -78,6 +78,7 @@ const createProposeOp = (
         const result = await invoke<{inverseOp:Array<Op>,version:number,snapshot:Snapshot}>('propose_op', { op, baseVersion:spv['version'] });
         get().setGraph(goalId,{snapshot:result['snapshot'],version:result['version']});
         //need to handle inverse ops
+        return (result['inverseOp']??[])[0]
     }
 }
 export const graphStore = createStore<GraphStore>()((set,get)=>({

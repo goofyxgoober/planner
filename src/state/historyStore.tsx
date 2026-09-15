@@ -121,7 +121,7 @@ const createRedo = (
 }
 
 
-export const HistoryStore = createStore<HistoryStore>()((set,get)=>({
+export const historyStore = createStore<HistoryStore>()((set,get)=>({
     undoStacks:{},
     redoStacks:{},
     pendingOps:{},
