@@ -18,7 +18,7 @@ import DagreNodePositioning, {
 } from "../layout/DagreNodePositioning";
 import "@xyflow/react/dist/style.css";
 
-import type { Snapshot, SnapshotVersion } from "../types";
+import type { Snapshot, SnapshotVersion, AppNode, GraphNode } from "../types";
  
 
 interface GraphViewProps {
@@ -35,9 +35,6 @@ const defaultLayoutOptions: DagreGraphOptions = {
   ranksep: 50,
 };
 
-
-
-
 function snapshotToFlow({snapshot,}: SnapshotVersion): [ Node[], Edge[] ] {
   const nodes: Node[] = Object.values(snapshot.nodes).map((n) => {
     // 1. Safely check if the API provided actual numbers for x and y
@@ -51,8 +48,9 @@ function snapshotToFlow({snapshot,}: SnapshotVersion): [ Node[], Edge[] ] {
         label: n.item.title, 
         nodeType: n.nodeType,
         // 2. Pass the flag directly into the node's data payload
+        item: n.item,
         layouted: hasSavedPosition 
-      },
+      } as AppNode['data'],
     };
   });
 
