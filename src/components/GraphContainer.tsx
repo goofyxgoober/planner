@@ -16,7 +16,7 @@ export const GraphContainer: React.FC<GraphContainerProps> = ({
   //loading=false,
 }) => {
   const [loading, setLoading] = useState<boolean>(true);
-  const [loadGraph,getGraph,proposeOp] = useStore(graphStore,(state)=>[state.loadGraph,state.getGraph,state.proposeOp]);
+  const [loadGraph,proposeOp] = useStore(graphStore,(state)=>[state.loadGraph,state.proposeOp]);
   const [snapshot]= useStore(graphStore,(state)=>[state.graphs[goalId]])
   const [queueHead] = useStore(historyStore,(state)=>[(state.pendingOps[goalId] ?? [])[0] ]);
   const [popFromPendingOp,pushUndoStack] = useStore(historyStore,(state)=>[state.popFromPendingOp,state.pushUndoStack]);
