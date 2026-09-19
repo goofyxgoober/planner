@@ -12,22 +12,32 @@ import type {
   NodeChange,
   EdgeChange,
   Connection,
+
 } from "@xyflow/react";
 import DagreNodePositioning, {
   type DagreGraphOptions,
 } from "../layout/DagreNodePositioning";
 import "@xyflow/react/dist/style.css";
 
-import type { Snapshot, SnapshotVersion, AppNode, GraphNode } from "../types";
- 
+import {GoalNode,HabitNode,TaskNode} from "./Nodes"
+import type {SnapshotVersion, AppNode } from "../types";
+import { historyStore } from "../state/historyStore";
 
+import {useStore} from "zustand";
+
+import type {Op} from "../types";
 interface GraphViewProps {
   snapshot: SnapshotVersion;
+  goalId: string,
   loading?: boolean;
   layoutOptions?: DagreGraphOptions;
 }
 
-
+const nodeTypes = {
+  goalNode: GoalNode, 
+  taskNode: TaskNode, 
+  habitNode: HabitNode 
+}
 
 const defaultLayoutOptions: DagreGraphOptions = {
   rankdir: "TB",
@@ -37,17 +47,14 @@ const defaultLayoutOptions: DagreGraphOptions = {
 
 function snapshotToFlow({snapshot,}: SnapshotVersion): [ Node[], Edge[] ] {
   const nodes: Node[] = Object.values(snapshot.nodes).map((n) => {
-    // 1. Safely check if the API provided actual numbers for x and y
-    // We use typeof instead of truthiness so we don't accidentally ignore a valid 0 coordinate
     const hasSavedPosition = typeof n.x === "number" && typeof n.y === "number";
-
+    const renderNodeType = ({'GOAL':'goalType','TASK':'taskType','HABIT':'habitType'})[n.nodeType];
     return {
       id: n.id,
       position: { x: n.x ?? 0, y: n.y ?? 0 },
+      type: renderNodeType,
       data: { 
-        label: n.item.title, 
-        nodeType: n.nodeType,
-        // 2. Pass the flag directly into the node's data payload
+        label: n.item.title,
         item: n.item,
         layouted: hasSavedPosition 
       } as AppNode['data'],
@@ -70,6 +77,7 @@ function snapshotToFlow({snapshot,}: SnapshotVersion): [ Node[], Edge[] ] {
 
 export const GraphView: React.FC<GraphViewProps> = ({
   snapshot,
+  goalId,
   loading = false,
   layoutOptions = defaultLayoutOptions,
 }) => {
@@ -77,10 +85,20 @@ export const GraphView: React.FC<GraphViewProps> = ({
   const [initialNodes,initialEdges] = snapshotToFlow(snapshot);
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [pushToPendingOp] = useStore(historyStore, (state) => [state.pushToPendingOp]);
 
 
-
-
+  const onNodesDragStop = useCallback(
+    (_: MouseEvent | TouchEvent, node: Node)=>{
+      const nodeId:string = (typeof node.data.id === "string") ? node.data.id : "";
+      if(nodeId==="")
+        return;
+      const [x,y] = [node.position.x,node.position.y]
+      const op:Op = {type:"move_node",id:nodeId,x:x,y:y};
+      pushToPendingOp(goalId,op);
+    },
+    [pushToPendingOp]
+  )
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>{
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot));
@@ -119,9 +137,11 @@ export const GraphView: React.FC<GraphViewProps> = ({
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onNodeDragStop={onNodesDragStop}
           fitView
         />
       </ReactFlowProvider>

@@ -64,7 +64,7 @@ export function GoalNode({ data }: NodeProps<Extract<AppNode, { type: 'GOAL' }>>
   return (
     <div className="rounded-lg border-2 border-purple-500 bg-purple-50 px-4 py-2 shadow-md">
       <div className="font-bold text-purple-900">{title}</div>
-      <form onSubmit={handleSubmitGoal}>
+      <form onSubmit={handleSubmitGoal} className='nodrag'>
         <label htmlFor="title-goal">Title:</label>
         <input id="title-goal" className="text-xs text-purple-700">{title}</input>
         <label htmlFor="due">Due:</label>
@@ -102,7 +102,7 @@ export function HabitNode({ data }: NodeProps<Extract<AppNode, { type: 'HABIT' }
   return (
     <div className="rounded-lg border-2 border-green-500 bg-green-50 px-4 py-2 shadow-md">
       <Handle type="target" position={Position.Top} />
-      <form onSubmit={handleSubmitHabit}>
+      <form onSubmit={handleSubmitHabit} className='nodrag'>
         <label htmlFor='title-habit'>Title:</label>
         <input id="title-habit" className="text-xs text-green-700" >{title}</input>
         <label htmlFor='frequency-habit'>Frequency:</label>
@@ -141,7 +141,7 @@ export function TaskNode({ data }: NodeProps<Extract<AppNode, { type: 'TASK' }>>
   return (
     <div className="rounded-lg border-2 border-blue-500 bg-blue-50 px-4 py-2 shadow-md">
       <Handle type="target" position={Position.Top} />
-      <form onSubmit={handleSubmitTask}>
+      <form onSubmit={handleSubmitTask} className='nodrag'>
         <label htmlFor='title-task'>Title:</label>
         <input id="title-task" className="text-xs text-green-700" >{title}</input>
         <label htmlFor='status-task'>Status:</label>

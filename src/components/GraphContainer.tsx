@@ -57,6 +57,7 @@ export const GraphContainer: React.FC<GraphContainerProps> = ({
   return (
     <GraphView
       snapshot={snapshot}
+      goalId={goalId}
       loading={loading}
     />
   );
