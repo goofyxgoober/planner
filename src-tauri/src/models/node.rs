@@ -51,6 +51,7 @@ pub trait Action: Send + Sync{
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Node{
     id:String,
     pub node_type: NodeType, 

@@ -66,11 +66,11 @@ export function GoalNode({ data }: NodeProps<Extract<AppNode, { type: 'GOAL' }>>
       <div className="font-bold text-purple-900">{title}</div>
       <form onSubmit={handleSubmitGoal} className='nodrag'>
         <label htmlFor="title-goal">Title:</label>
-        <input id="title-goal" className="text-xs text-purple-700">{title}</input>
+        <input id="title-goal" className="text-xs text-purple-700"/>{title}
         <label htmlFor="due">Due:</label>
-        <input id="due-goal" className="text-xs text-purple-700">{targetDate}</input>
+        <input id="due-goal" className="text-xs text-purple-700"/>{targetDate}
         <label htmlFor="status-goal">Status:</label>
-        <input id="status-goal" className="text-xs text-purple-700">{status}</input>
+        <input id="status-goal" className="text-xs text-purple-700"/>{status}
       </form>
       <Handle type="source" position={Position.Bottom} />
     </div>
@@ -104,11 +104,11 @@ export function HabitNode({ data }: NodeProps<Extract<AppNode, { type: 'HABIT' }
       <Handle type="target" position={Position.Top} />
       <form onSubmit={handleSubmitHabit} className='nodrag'>
         <label htmlFor='title-habit'>Title:</label>
-        <input id="title-habit" className="text-xs text-green-700" >{title}</input>
+        <input id="title-habit" className="text-xs text-green-700"/>{title}
         <label htmlFor='frequency-habit'>Frequency:</label>
-        <input id="frequency-habit" className="text-xs text-green-700">{frequency}</input>
+        <input id="frequency-habit" className="text-xs text-green-700"/>{frequency}
         <label htmlFor='streakCount-habit'>StreakCount:</label>
-        <input id="streakCount-habit" className="text-xs text-green-700">{streakCount}</input>
+        <input id="streakCount-habit" className="text-xs text-green-700"/>{streakCount}
       </form>
       <Handle type="source" position={Position.Bottom} />
     </div>
@@ -143,11 +143,11 @@ export function TaskNode({ data }: NodeProps<Extract<AppNode, { type: 'TASK' }>>
       <Handle type="target" position={Position.Top} />
       <form onSubmit={handleSubmitTask} className='nodrag'>
         <label htmlFor='title-task'>Title:</label>
-        <input id="title-task" className="text-xs text-green-700" >{title}</input>
+        <input id="title-task" className="text-xs text-green-700"/>{title}
         <label htmlFor='status-task'>Status:</label>
-        <input id="status-task" className="text-xs text-green-700">{status}</input>
+        <input id="status-task" className="text-xs text-green-700"/>{status}
         <label htmlFor='streakCount-task'>PriorityWeight:</label>
-        <input id="streakCount-task" className="text-xs text-green-700">{priorityWeight}</input>
+        <input id="streakCount-task" className="text-xs text-green-700"/>{priorityWeight}
       </form>
       <Handle type="source" position={Position.Bottom} />
     </div>

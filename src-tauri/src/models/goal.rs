@@ -7,6 +7,7 @@ use serde_json::json;
 
 use crate::models::node::{Action,NodeType};
 #[derive(FromRow,Serialize,Deserialize,Debug,Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Goal {
     id: String,
     node_id:String,

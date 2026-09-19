@@ -31,6 +31,7 @@ pub struct Dag{
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Snapshot{
 
     nodes:HashMap<String,Node>, 

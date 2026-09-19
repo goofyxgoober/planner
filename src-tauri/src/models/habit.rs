@@ -9,6 +9,7 @@ use crate::models::node::{Action,NodeType};
 
 
 #[derive(Debug,FromRow,Clone,Serialize,Deserialize)] 
+#[serde(rename_all = "camelCase")]
 pub struct Habit{
     id: String, 
     node_id: String, 

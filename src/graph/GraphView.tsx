@@ -48,7 +48,10 @@ const defaultLayoutOptions: DagreGraphOptions = {
 function snapshotToFlow({snapshot,}: SnapshotVersion): [ Node[], Edge[] ] {
   const nodes: Node[] = Object.values(snapshot.nodes).map((n) => {
     const hasSavedPosition = typeof n.x === "number" && typeof n.y === "number";
-    const renderNodeType = ({'GOAL':'goalType','TASK':'taskType','HABIT':'habitType'})[n.nodeType];
+    const NODE_TYPE_MAP: Record<string, string> = { GOAL: 'goalNode', TASK: 'taskNode', HABIT: 'habitNode' };
+    const renderNodeType = NODE_TYPE_MAP[n.nodeType];
+    //console.log("node:",n);
+    //if (!renderNodeType) console.warn('Unknown nodeType', n.nodeType);
     return {
       id: n.id,
       position: { x: n.x ?? 0, y: n.y ?? 0 },
