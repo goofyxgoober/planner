@@ -29,11 +29,12 @@ const createLoadGraph = (
             errors:{...state.errors,[goalId]:undefined},
         }))
         try{
-            const result = await invoke<SnapshotVersion>('get_snapshot', {
+            const result = await invoke<[Snapshot,number]>('get_snapshot', {
                 goalId: goalId // Rust receives this as `goal_id`
             });
+            const spv = {snapshot:result[0],version:result[1]};
             set((state)=>({
-                graphs: {...state.graphs,[goalId]:result},
+                graphs: {...state.graphs,[goalId]:spv},
             }))
         }
         catch(err){

@@ -1,13 +1,13 @@
-use tokio::sync::Mutex;
+//use tokio::sync::Mutex;
 
 use std::collections::HashMap;
-use sqlx::{SqlitePool};
 
 
-use crate::db::connection::{create_database, establish_connection};
+
+use crate::db::connection::{establish_connection};
 
 use crate::core::dag::{Dag};
-use crate::models::goal::{Goal,get_goals};
+use crate::models::goal::{get_goals};
 
 
 #[derive(Default)]

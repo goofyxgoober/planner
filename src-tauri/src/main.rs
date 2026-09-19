@@ -12,7 +12,7 @@ async fn main() {
     eprintln!("Failed to initialize database: {err}");
     std::process::exit(1);
 }
-    genplanner_lib::run()
+    genplanner_lib::run().await
 }
 
 

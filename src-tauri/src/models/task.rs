@@ -1,13 +1,10 @@
 use sqlx::sqlite::SqlitePool;
 
-use sqlx::{FromRow, Row, sqlite::SqliteRow};
+use sqlx::{FromRow};
 use serde::{Serialize,Deserialize};
-use std::ffi::NulError;
-use std::marker::PhantomData;
-use uuid::Uuid;
+
 
 use crate::models::node::{Action,NodeType};
-use std::any::TypeId;
 use serde_json::json;
 
 #[derive(Clone,FromRow,Serialize,Deserialize,Debug)]
@@ -268,7 +265,7 @@ pub async fn get_task_dependencies(pool:&SqlitePool,goal_id:&str)->anyhow::Resul
 }
 
 
-
+/*
 
 #[derive(Debug, FromRow)]
 pub struct TaskFeedback {
@@ -280,3 +277,5 @@ pub struct TaskFeedback {
     completion_quality: u8,
     created_at: String,
 }
+
+*/

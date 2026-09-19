@@ -1,16 +1,14 @@
-use std::vec;
 use std::collections::{HashMap,VecDeque};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use sqlx::sqlite::SqlitePool;
-use thiserror::Error;
 //Would help if I maintained my own dag datastructure in mem to manipulate then save periodically to the db 
 //Would need a get_task_dependencies, and get_tasks by goal_id, as well as event_contexts
 //Given tasks,habits,event_contexts, and task_dependencies Make apporpriate nodes and edges
 //Make sure there's logic that prevents cross-edges that break dag and back-edges 
 //Add Topological sort
-use crate::models::habit::{Habit,upload_habit,delete_habit,get_habits}; 
-use crate::models::task::{Task, TaskDependency, delete_task, get_task_dependencies, get_tasks, upload_task, upload_task_dependency,delete_task_dependency}; 
-use crate::models::goal::{Goal,upload_goal,delete_goal,get_goals, get_goal};
+use crate::models::habit::{Habit,upload_habit,get_habits}; 
+use crate::models::task::{Task, get_task_dependencies, get_tasks, upload_task, upload_task_dependency,delete_task_dependency}; 
+use crate::models::goal::{Goal, get_goal};
 use crate::db::connection::{establish_connection};
 use crate::models::node::{Action, DagError, Node, NodeType, delete_node, save_node, upload_node};
 
@@ -157,7 +155,7 @@ impl Dag{
         Ok(())
     }
 
-    pub async fn modify_node(&mut self, id:&str,mut json_str:Option<String>, mut x:Option<f32>, mut y:Option<f32>)-> anyhow::Result<()>{
+    pub async fn modify_node(&mut self, id:&str,json_str:Option<String>, mut x:Option<f32>, mut y:Option<f32>)-> anyhow::Result<()>{
         let node =  match self.sn.nodes.get_mut(id){
             None =>{return Err(DagError::NodeError { message: "node doesn't exist".to_string() })?;},
             Some(node) => node

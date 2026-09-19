@@ -4,19 +4,17 @@ pub mod models;
 pub mod db; 
 pub mod state;
 
-use core::dag::{Dag,Snapshot};
-use std::{collections::HashMap, ops::DerefMut};
+use core::dag::{Dag};
+use std::{ ops::DerefMut};
 use db::connection::{establish_connection};
-use models::goal::{get_goal};
 use serde_json::{Value};
-use models::operation::{Op,apply_op,get_valid_dag};
+use models::operation::{Op,apply_op};
 
 use state::state::{AppState,initilize_state};
 
-use tauri::{Builder, Manager,State};
+use tauri::{ Manager,State};
 use tokio::sync::Mutex;
 
-use crate::models::goal;
 
 #[tauri::command]
 async fn get_snapshot(goal_id: String) -> Result<(Value,i64),String> {
@@ -35,7 +33,7 @@ async fn get_snapshot(goal_id: String) -> Result<(Value,i64),String> {
 //Todo make proper returning interface for apply opp
 //Figure outhow to keep a map of dags persistent in memory and load it
 #[tauri::command]
-async fn execute_op(state:State<'_,Mutex<AppState>>,op:Op,base_version:i64,goal_id: Option<String>)->Result<(Vec<Op>,i64,Value),String>{
+async fn propose_op(state:State<'_,Mutex<AppState>>,op:Op,base_version:i64,goal_id: Option<String>)->Result<(Vec<Op>,i64,Value),String>{
     let mut mut_gaurd = state.lock().await;
     let state = mut_gaurd.deref_mut();    
     let pool = establish_connection().await.map_err(|err|format!("{err:?}") )?;
@@ -44,6 +42,18 @@ async fn execute_op(state:State<'_,Mutex<AppState>>,op:Op,base_version:i64,goal_
 
 }
 
+#[tauri::command]
+async fn fetch_goal_ids(state:State<'_,Mutex<AppState>>)->Result<Vec<String>,String>{
+    let mut mut_gaurd = state.lock().await; 
+    let state = mut_gaurd.deref_mut();  
+    let goal_ids:Vec<&String> = state.dag_map.keys().collect();
+    let mut  goal_ids_copy:Vec<String> = [].to_vec();
+    for id in goal_ids{
+        goal_ids_copy.push(String::from(id));
+    }
+
+    Ok(goal_ids_copy)
+}
 
 
 #[tauri::command]
@@ -54,23 +64,17 @@ fn greet(name: &str) -> String {
 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub async fn run() {
+    let mut app_state = AppState::default();
+    initilize_state(&mut app_state).await.unwrap();
     tauri::Builder::default()
-        .setup(|app|{
+        .setup(move |app|{
             let handle = app.handle().clone();
-    
-
-            tauri::async_runtime::block_on(async move {
-                let mut app_state = AppState::default();
-                initilize_state(&mut app_state).await.unwrap();
-                handle.manage(Mutex::new(app_state));
-
-            });
- 
+            handle.manage(Mutex::new(app_state)); 
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet,get_snapshot,execute_op])
+        .invoke_handler(tauri::generate_handler![greet,get_snapshot,propose_op,fetch_goal_ids])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

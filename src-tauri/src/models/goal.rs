@@ -3,7 +3,6 @@
 use sqlx::sqlite::SqlitePool;
 use serde::{Serialize,Deserialize};
 use sqlx::{FromRow};
-use uuid::Uuid;
 use serde_json::json;
 
 use crate::models::node::{Action,NodeType};

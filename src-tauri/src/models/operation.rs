@@ -1,14 +1,13 @@
 use serde::{Deserialize, Serialize};
-use sqlx::{Sqlite, Transaction};
 use std::collections::{HashMap};
 
 
-use crate::models::habit::{Habit, save_habit}; 
-use crate::models::task::{Task, save_task}; 
-use crate::models::goal::{Goal, get_goal, save_goal};
+use crate::models::habit::{Habit}; 
+use crate::models::task::{Task}; 
+use crate::models::goal::{Goal};
 
 use crate::core::dag::{Dag};
-use crate::models::node::{Action, DagError, Node, NodeType, delete_node, get_node, upload_node};
+use crate::models::node::{Action, DagError, NodeType, get_node, upload_node};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Op {
@@ -187,7 +186,7 @@ pub async fn apply_op(dag_map: &mut HashMap<String, Dag>,pool:&sqlx::SqlitePool,
         }
         Op::MoveNode { id, x, y } => {
             let dag = get_valid_dag(dag_map, goal_id, base_version)?;
-            let mut node = dag.get_node(id)?; 
+            let node = dag.get_node(id)?; 
 
             let prev_x = node.x.unwrap_or(x.clone());
             let prev_y = node.y.unwrap_or(x.clone());

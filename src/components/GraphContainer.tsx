@@ -20,9 +20,10 @@ export const GraphContainer: React.FC<GraphContainerProps> = ({
   const [snapshot]= useStore(graphStore,(state)=>[state.graphs[goalId]])
   const [queueHead] = useStore(historyStore,(state)=>[(state.pendingOps[goalId] ?? [])[0] ]);
   const [popFromPendingOp,pushUndoStack] = useStore(historyStore,(state)=>[state.popFromPendingOp,state.pushUndoStack]);
-  const graphErrors = useStore(graphStore, (state)=>state.errors[goalId]);
+  //const graphErrors = useStore(graphStore, (state)=>state.errors[goalId]);
   
   useEffect(() => {
+    console.log(`Started loading graph`)
     async function load() {
       setLoading(true);
       await loadGraph(goalId); 
@@ -30,6 +31,7 @@ export const GraphContainer: React.FC<GraphContainerProps> = ({
     }
 
     load();
+    console.log(`Loaded Graph Successfully`)
   }, []);
 
 

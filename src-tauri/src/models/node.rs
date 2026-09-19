@@ -1,10 +1,10 @@
-use std::vec;
-use std::collections::{HashMap,VecDeque};
+//use std::vec;
+//use std::collections::{HashMap,VecDeque};
 use serde::{Deserialize, Serialize};
-use sqlx::Sqlite;
+//use sqlx::Sqlite;
 use sqlx::Row;
 use sqlx::sqlite::SqlitePool;
-use uuid::Uuid;
+//use uuid::Uuid;
 
 use thiserror::Error;
 //Would help if I maintained my own dag datastructure in mem to manipulate then save periodically to the db 
@@ -12,10 +12,9 @@ use thiserror::Error;
 //Given tasks,habits,event_contexts, and task_dependencies Make apporpriate nodes and edges
 //Make sure there's logic that prevents cross-edges that break dag and back-edges 
 //Add Topological sort
-use crate::models::habit::{Habit,get_habit,save_habit}; 
-use crate::models::task::{Task,get_task, save_task}; 
-use crate::models::goal::{Goal,get_goal,save_goal};
-use crate::db::connection::{establish_connection};
+use crate::models::habit::{get_habit,save_habit}; 
+use crate::models::task::{get_task, save_task}; 
+use crate::models::goal::{get_goal,save_goal};
 
 #[derive(Error,Debug)]
 pub enum DagError{
@@ -186,8 +185,14 @@ pub async fn save_node(pool:&SqlitePool, node:&mut Node, position:(Option<f32>,O
             save_task(pool, &task).await?;
         }
     }
-    //let (x,y) =position;
-
+    let (x,y) =position;
+    let query = "UPDATE nodes x = ?, y = ?, WHERE id = ?;";
+    sqlx::query(query)
+    .bind(&x)
+    .bind(&y)
+    .bind(&node.id)
+    .execute(pool)
+    .await?;
 
     Ok(())
 }
