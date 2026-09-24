@@ -1365,6 +1365,7 @@ name = "genplanner"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "heck 0.5.0",
  "serde",
  "serde_json",
  "sqlx",

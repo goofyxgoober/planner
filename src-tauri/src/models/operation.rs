@@ -187,11 +187,12 @@ pub async fn apply_op(dag_map: &mut HashMap<String, Dag>,pool:&sqlx::SqlitePool,
             println!("Moving Node!");
             let dag = get_valid_dag(dag_map, goal_id, base_version)?;
             let node = dag.get_node(id)?; 
-
+            println!("Got Node");
             let prev_x = node.x.unwrap_or(x.clone());
             let prev_y = node.y.unwrap_or(x.clone());
             
             dag.modify_node(id, None, Some(x.clone()), Some(y.clone())).await?;
+            println!("Modified node");
             snapshot = dag.to_snapshot();
             next_version+=1;
             inverse_ops.push(Op::MoveNode { id: (id.to_string()), x: (prev_x), y: (prev_y) });

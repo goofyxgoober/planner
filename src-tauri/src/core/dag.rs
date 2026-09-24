@@ -31,7 +31,7 @@ pub struct Dag{
 }
 
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
+//#[serde(rename_all = "camelCase")]
 pub struct Snapshot{
 
     nodes:HashMap<String,Node>, 
@@ -171,7 +171,11 @@ impl Dag{
             x = node.x.clone(); 
             y = node.y.clone();
         }
-        node.item.modify_fields(use_json_str)?;
+        
+        let json_str_print = use_json_str.clone();
+        println!("Json str:{json_str_print}");
+        node.item.modify_fields(use_json_str.clone())?;
+        println!("modified fields{use_json_str}");
         save_node(&self.pool, node, (x,y)).await?;
         Ok(())
     }
