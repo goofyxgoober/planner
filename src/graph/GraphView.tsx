@@ -55,7 +55,7 @@ function snapshotToFlow({snapshot,}: SnapshotVersion): [ Node[], Edge[] ] {
     return {
       id: n.id,
       position: { x: n.x ?? 0, y: n.y ?? 0 },
-      type: renderNodeType,
+      //type: renderNodeType,
       data: { 
         label: n.item.title,
         item: n.item,
@@ -93,9 +93,10 @@ export const GraphView: React.FC<GraphViewProps> = ({
 
   const onNodesDragStop = useCallback(
     (_: MouseEvent | TouchEvent, node: Node)=>{
-      const nodeId:string = (typeof node.data.id === "string") ? node.data.id : "";
+      const nodeId:string = (typeof node.id === "string") ? node.id : "";
       if(nodeId==="")
         return;
+      console.log("Triggered node drag stop");
       const [x,y] = [node.position.x,node.position.y]
       const op:Op = {type:"move_node",id:nodeId,x:x,y:y};
       pushToPendingOp(goalId,op);

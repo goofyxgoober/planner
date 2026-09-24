@@ -100,10 +100,9 @@ pub async fn apply_op(dag_map: &mut HashMap<String, Dag>,pool:&sqlx::SqlitePool,
 
     }
     
-    let mut snapshot:serde_json::Value = serde_json::from_str("")?;
+    let mut snapshot:serde_json::Value = serde_json::Value::default();
     //let root_goal = get_goal(pool, goal_id).await?;
     //let dag = get_valid_dag(dag_map, goal_id, base_version)?;
-
     match op {
         Op::AddTask {task, x, y } => {
             //upload_node(pool, task.clone(), x.clone(), y.clone()).await?;
@@ -185,6 +184,7 @@ pub async fn apply_op(dag_map: &mut HashMap<String, Dag>,pool:&sqlx::SqlitePool,
             
         }
         Op::MoveNode { id, x, y } => {
+            println!("Moving Node!");
             let dag = get_valid_dag(dag_map, goal_id, base_version)?;
             let node = dag.get_node(id)?; 
 

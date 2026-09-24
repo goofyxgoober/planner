@@ -18,7 +18,7 @@ export const GraphContainer: React.FC<GraphContainerProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [loadGraph,proposeOp] = useStore(graphStore,(state)=>[state.loadGraph,state.proposeOp]);
   const [snapshot]= useStore(graphStore,(state)=>[state.graphs[goalId]])
-  const [queueHead] = useStore(historyStore,(state)=>[(state.pendingOps[goalId] ?? [])[0] ]);
+  const [opQueue] = useStore(historyStore,(state)=>[state.pendingOps[goalId] ?? []]);
   const [popFromPendingOp,pushUndoStack] = useStore(historyStore,(state)=>[state.popFromPendingOp,state.pushUndoStack]);
   //const graphErrors = useStore(graphStore, (state)=>state.errors[goalId]);
   
@@ -36,22 +36,24 @@ export const GraphContainer: React.FC<GraphContainerProps> = ({
 
 
   useEffect(() => {
-    
-    if(queueHead===undefined)
+    if(opQueue.length===0)
       return; 
-
+    const queueHead = popFromPendingOp(goalId);
+    if(queueHead===undefined)
+      return;
+    console.log("Operation triggered");
     proposeOp(goalId,queueHead)
       .then(inverseOp=>{
+
         if (inverseOp === undefined) return;
-        const poppedOp = popFromPendingOp(goalId);
-        if (poppedOp === undefined ) return;
         pushUndoStack(goalId,{op:queueHead,inverseOp:inverseOp});
       })
       .catch(error=>{
         //handle error ig
+        console.log("Error proposing op:",error);
       });
   
-  }, [queueHead]);
+  }, [opQueue]);
 
   if(snapshot===undefined){
     return (<div>loading...</div>)

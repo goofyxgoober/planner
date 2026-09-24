@@ -76,7 +76,7 @@ const createProposeOp = (
             //should be more explicit with what went wrong
             return;
         }
-        const result = await invoke<{inverseOp:Array<Op>,version:number,snapshot:Snapshot}>('propose_op', { op, baseVersion:spv['version'] });
+        const result = await invoke<{inverseOp:Array<Op>,version:number,snapshot:Snapshot}>('propose_op', { op, baseVersion:spv['version'],goalId});
         get().setGraph(goalId,{snapshot:result['snapshot'],version:result['version']});
         //need to handle inverse ops
         return (result['inverseOp']??[])[0]

@@ -14,7 +14,7 @@ use state::state::{AppState,initilize_state};
 
 use tauri::{ Manager,State};
 use tokio::sync::Mutex;
-
+use std::backtrace::Backtrace;
 
 #[tauri::command]
 async fn get_snapshot(goal_id: String) -> Result<(Value,i64),String> {
@@ -32,13 +32,20 @@ async fn get_snapshot(goal_id: String) -> Result<(Value,i64),String> {
 
 //Todo make proper returning interface for apply opp
 //Figure outhow to keep a map of dags persistent in memory and load it
-#[tauri::command]
-async fn propose_op(state:State<'_,Mutex<AppState>>,op:Op,base_version:i64,goal_id: Option<String>)->Result<(Vec<Op>,i64,Value),String>{
+#[tauri::command]                                                                                           //(Vec<Op>,i64,Value)
+async fn propose_op(state:State<'_,Mutex<AppState>>,op:Op,base_version:i64,goal_id: Option<String>)->Result<(),String>{
     let mut mut_gaurd = state.lock().await;
     let state = mut_gaurd.deref_mut();    
     let pool = establish_connection().await.map_err(|err|format!("{err:?}") )?;
-    let ops = apply_op(&mut state.dag_map, &pool, &op, &base_version, &goal_id).await.map_err(|err| format!("{err:?}"));
-    ops
+    println!("Established sqlite conn");
+    let ops = apply_op(&mut state.dag_map, &pool, &op, &base_version, &goal_id).await.map_err(
+        |err| {
+            //let backtrace = Backtrace::capture();
+            println!("Error:{err}");
+            format!("{err:?}");
+            //panic!("Err:{err}");
+        });
+    Ok(())
 
 }
 

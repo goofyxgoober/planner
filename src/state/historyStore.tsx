@@ -30,7 +30,7 @@ const createPushToPendingOp = (
         set((state)=>({
             pendingOps:{
                 ...state.pendingOps,
-                [goalId]:{...currentOps,op}
+                [goalId]:[...currentOps,op]
             }
         }));
     }
@@ -49,7 +49,7 @@ const createPopFromPendingOp = (
         set((state)=>({
             pendingOps:{
                 ...state.pendingOps,
-                [goalId]:{...currentOps}
+                [goalId]:[...currentOps]
             }
         }));
         return poppedOp;
@@ -65,7 +65,7 @@ const createPushUndoStack = (
         set((state)=>({
             undoStacks:{
                 ...state.undoStacks,
-                [goalId]:{...currentOps,op}
+                [goalId]:[...currentOps,op]
             }
         }));
     }
@@ -82,15 +82,19 @@ const createUndo = (
             return undefined;
         }
         const poppedOp = currentOps.pop();
+        
+        if(poppedOp===undefined)
+            return;
+        
         set((state)=>({
             undoStacks:{
                 ...state.undoStacks,
-                [goalId]:{...currentOps}
+                [goalId]:[...currentOps]   
             },
             redoStacks:{
                 ...state.redoStacks,
-                [goalId]:{...get().redoStacks[goalId]??[],poppedOp}
-            }
+                [goalId]:[...get().redoStacks[goalId]??[],poppedOp]
+            },
         }));
         return poppedOp;
     }
