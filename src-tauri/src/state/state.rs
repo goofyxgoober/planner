@@ -20,7 +20,9 @@ pub async fn initilize_state(state:&mut AppState)->anyhow::Result<()>{
     assert!(state.dag_map.is_empty());
     let goals=get_goals(&pool).await?;
     for goal in goals{
-        state.dag_map.insert(String::from(goal.get_id()),Dag::create_with_goal(goal).await?);
+        let mut dag = Dag::create_with_goal(goal.clone()).await?;
+        dag.download_dag().await?;
+        state.dag_map.insert(String::from(goal.get_id()),dag);
     }
     Ok(())
 }

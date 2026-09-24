@@ -73,7 +73,7 @@ impl Dag{
                 Snapshot{
                     nodes:HashMap::new(), 
                     successors:HashMap::new(), 
-                    predecessors:HashMap::new() 
+                    predecessors:HashMap::new()
                 }
         })
     }
@@ -158,7 +158,8 @@ impl Dag{
 
     pub async fn modify_node(&mut self, id:&str,json_str:Option<String>, mut x:Option<f32>, mut y:Option<f32>)-> anyhow::Result<()>{
         let node =  match self.sn.nodes.get_mut(id){
-            None =>{return Err(DagError::NodeError { message: "node doesn't exist".to_string() })?;},
+            None =>{
+                return Err(DagError::NodeError { message: "node doesn't exist".to_string() })?;},
             Some(node) => node
         };
 
@@ -187,7 +188,14 @@ impl Dag{
 
     pub fn get_node(&self, id:&str)->anyhow::Result<&Node>{
         let node= match self.sn.nodes.get(id){
-            None => {return Err(DagError::NodeError { message: "node doesn't exist".to_string() })?;},
+            None => {
+                let len = (&self.sn.nodes).len();
+                println!("Length of nodes hashmap:{len}");
+                for (key,_) in &self.sn.nodes{
+                    println!("{key}");
+                }
+                println!("Failed fetching this node:{id}");
+                return Err(DagError::NodeError { message: "node doesn't exist".to_string() })?;},
             Some(node) => node,
         }; 
         Ok(node)
