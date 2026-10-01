@@ -31,7 +31,7 @@ pub struct Dag{
 }
 
 #[derive(Serialize)]
-//#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct Snapshot{
 
     nodes:HashMap<String,Node>, 
@@ -81,10 +81,14 @@ impl Dag{
         &self.goal
     }
     pub async fn download_dag(&mut self)->anyhow::Result<()>{ 
+        println!("fetching tasks");
         let tasks = get_tasks(&self.pool, Some(self.goal.get_id())).await?;
+        println!("fetching habits");
         let habits = get_habits(&self.pool, Some(self.goal.get_id())).await?;
+        println!("fetching taskdeps");
         let task_dependencies = get_task_dependencies(&self.pool, self.goal.get_id()).await?;
         
+        println!("inserting info into dags");
         //Insert root node before rest
         self.sn.nodes.insert(String::from(self.goal.get_uuid()),Node::new(self.goal.clone(),None,None));
         for task in tasks{

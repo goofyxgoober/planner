@@ -8,15 +8,19 @@ use crate::models::node::{Action,NodeType};
 
 
 
-#[derive(Debug,FromRow,Clone,Serialize,Deserialize)] 
+#[derive(FromRow, Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct Habit{
-    id: String, 
-    node_id: String, 
-    goal_id: Option<String>, 
+pub struct Habit {
+    id: String,
+    #[sqlx(rename = "nodeId")]
+    node_id: String,
+    #[sqlx(rename = "goalId")]
+    goal_id: Option<String>,
     title: String,
     frequency: String,
-    target_time: u32, 
+    #[sqlx(rename = "targetTime")]
+    target_time: u32,
+    #[sqlx(rename = "streakCount")]
     streak_count: u32,
 }
 
@@ -63,11 +67,11 @@ impl Habit{
         let self_json = json!({
             "type":"HABIT",
             "id":self.id, 
-            "node_id":self.node_id,
-            "goal_id":self.goal_id, 
+            "nodeId":self.node_id,
+            "goalId":self.goal_id, 
             "title":self.title, 
-            "target_time":self.target_time,
-            "streak_count":self.streak_count
+            "targetTime":self.target_time,
+            "streakCount":self.streak_count
         }); 
         self_json.to_string() 
     }
@@ -75,7 +79,7 @@ impl Habit{
 
 
 pub async fn upload_habit(pool: &SqlitePool, habit: &Habit ) -> anyhow::Result<()> {
-    let query = "INSERT INTO habits (id,node_id,title,frequency,target_time,streak_count,goal_id) VALUES ($1,$2,$3,$4,&5,&6,&7)";
+    let query = "INSERT INTO habits (id,nodeId,title,frequency,targetTime,streakCount,goalId) VALUES ($1,$2,$3,$4,&5,&6,&7)";
     sqlx::query(query)
         .bind(&habit.id)
         .bind(&habit.node_id)
@@ -101,7 +105,7 @@ pub async fn delete_habit(pool:&SqlitePool, habit:Habit)->anyhow::Result<()>{
 }
 
 pub async fn save_habit(pool: &SqlitePool, habit: &Habit) -> anyhow::Result<()> {
-    let query = "UPDATE habits SET node_id = ?, title = ?, frequency = ?, target_time = ?, streak_count = ?, goal_id = ? WHERE id = ?;";
+    let query = "UPDATE habits SET nodeId = ?, title = ?, frequency = ?, targetTime = ?, streakCount = ?, goalId = ? WHERE id = ?;";
     sqlx::query(query)
         .bind(&habit.node_id)
         .bind(&habit.title)
@@ -117,8 +121,8 @@ pub async fn save_habit(pool: &SqlitePool, habit: &Habit) -> anyhow::Result<()> 
 
 pub async fn get_habits(pool: &SqlitePool, group_id:Option<&str>) -> anyhow::Result<Vec<Habit>> {
     let habits =
-        sqlx::query_as::<_, Habit>(r#"SELECT id,node_id,goal_id,title,frequency,target_time,streak_count FROM habits
-                                                   WHERE ($1 IS NULL or goal_id = $1)"#)
+        sqlx::query_as::<_, Habit>(r#"SELECT id,nodeId,goalId,title,frequency,targetTime,streakCount FROM habits
+                                                   WHERE ($1 IS NULL or goalId = $1)"#)
             .bind(group_id)
             .fetch_all(pool)
             .await?;
@@ -127,7 +131,7 @@ pub async fn get_habits(pool: &SqlitePool, group_id:Option<&str>) -> anyhow::Res
 
 pub async fn get_habit(pool: &SqlitePool,node_id:&str) -> anyhow::Result<Habit> {
     let habit =
-        sqlx::query_as::<_, Habit>(r#"SELECT id,node_id,goal_id,title,frequency,target_time,streak_couns FROM habits WHERE id=$1"#)
+        sqlx::query_as::<_, Habit>(r#"SELECT id,nodeId,goalId,title,frequency,targetTime,streakCount FROM habits WHERE id=$1"#)
             .bind(node_id)
             .fetch_one(pool)
             .await?;

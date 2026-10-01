@@ -118,7 +118,7 @@ impl Node{
 
 
 pub async fn upload_node(pool:&SqlitePool,action: impl Action + 'static + Clone,x:Option<f32>,y:Option<f32>)->anyhow::Result<Node>{
-    let query = "INSERT INTO nodes (id,node_type,x,y) VALUES ($1,$2,$3,$4)";
+    let query = "INSERT INTO nodes (id,nodeType,x,y) VALUES ($1,$2,$3,$4)";
     let node = Node::new(action.clone(), x, y);
     let node_type_str = match action.get_node_type() {
         NodeType::GOAL => "goal",
@@ -136,7 +136,7 @@ pub async fn upload_node(pool:&SqlitePool,action: impl Action + 'static + Clone,
 }
 
 pub async fn get_node(pool: &SqlitePool,node_id:&str) -> anyhow::Result<Node> {
-    let query = "SELECT node_type,x,y FROM nodes WHERE id=$1";
+    let query = "SELECT nodeType,x,y FROM nodes WHERE id=$1";
     
     let row = sqlx::query(query)
         .bind(node_id)
@@ -144,7 +144,7 @@ pub async fn get_node(pool: &SqlitePool,node_id:&str) -> anyhow::Result<Node> {
         .await?;
     let x:f32 = row.get("x"); 
     let y:f32 = row.get("y");
-    let node_type_str:String = row.get("node_type");
+    let node_type_str:String = row.get("nodeType");
 
     let node_type = match node_type_str.to_lowercase().as_str() {
             "goal" => Ok(NodeType::GOAL),
@@ -187,7 +187,7 @@ pub async fn save_node(pool:&SqlitePool, node:&mut Node, position:(Option<f32>,O
         }
     }
     let (x,y) =position;
-    let query = "UPDATE nodes x = ?, y = ?, WHERE id = ?;";
+    let query = "UPDATE nodes SET x = ?, y = ? WHERE id = ?;";
     sqlx::query(query)
     .bind(&x)
     .bind(&y)

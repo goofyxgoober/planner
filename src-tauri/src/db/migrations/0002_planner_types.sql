@@ -27,7 +27,7 @@
 -- Reset: clear out prior seed data, in FK-safe order
 -- (children before parents, so nothing violates a constraint)
 -- --------------------------------------------------------------
-DELETE FROM task_dependencies;
+DELETE FROM taskDependencies;
 DELETE FROM habits;
 DELETE FROM tasks;
 DELETE FROM goals;
@@ -37,7 +37,7 @@ DELETE FROM nodes;
 -- Nodes: one per goal / task / habit below — id matches the
 -- wrapped entity's own id exactly.
 -- --------------------------------------------------------------
-INSERT INTO nodes (id, node_type, x, y) VALUES
+INSERT INTO nodes (id, nodeType, x, y) VALUES
   ('goal-1',  'goal',  NULL, NULL),
   ('task-1',  'task',  NULL, NULL),
   ('task-2',  'task',  NULL, NULL),
@@ -48,13 +48,13 @@ INSERT INTO nodes (id, node_type, x, y) VALUES
 -- --------------------------------------------------------------
 -- Goal — this is the root of the DAG
 -- --------------------------------------------------------------
-INSERT INTO goals (id, node_id, title, target_date, status, version) VALUES
+INSERT INTO goals (id, nodeId, title, targetDate, status, version) VALUES
   ('goal-1', 'goal-1', 'Pass Calculus with an A', '2026-12-15', 'active', 0);
 
 -- --------------------------------------------------------------
--- Tasks, all scoped to goal-1 via goal_id.
+-- Tasks, all scoped to goal-1 via goalId.
 --
--- task-1 has NO incoming task_dependencies edge, so it's the
+-- task-1 has NO incoming taskDependencies edge, so it's the
 -- single root task directly under the goal:
 --
 --   goal-1 (ROOT)
@@ -65,9 +65,9 @@ INSERT INTO goals (id, node_id, title, target_date, status, version) VALUES
 --                    (task-2 also feeds task-4)
 -- --------------------------------------------------------------
 INSERT INTO tasks (
-  id, node_id, goal_id, event_context_id, title, task_type,
-  base_duration, scheduled_start, scheduled_end,
-  urgency_score, importance_score, priority_weight, status
+  id, nodeId, goalId, eventContextId, title, taskType,
+  baseDuration, scheduledStart, scheduledEnd,
+  urgencyScore, importanceScore, priorityWeight, status
 ) VALUES
   ('task-1', 'task-1', 'goal-1', NULL, 'Read Chapter 3',        'study', 45, NULL, NULL, 0.3, 0.6, 0.45, 'pending'),
   ('task-2', 'task-2', 'goal-1', NULL, 'Complete Problem Set',  'study', 60, NULL, NULL, 0.4, 0.7, 0.55, 'pending'),
@@ -78,7 +78,7 @@ INSERT INTO tasks (
 -- Task Dependencies (DAG edges) — task-1 has no predecessor,
 -- so it's the root task reachable directly from goal-1.
 -- --------------------------------------------------------------
-INSERT INTO task_dependencies (predecessor_id, successor_id, goal_id) VALUES
+INSERT INTO taskDependencies (predecessorId, successorId, goalId) VALUES
   ('task-1', 'task-2', 'goal-1'),
   ('task-1', 'task-3', 'goal-1'),
   ('task-2', 'task-4', 'goal-1'),
@@ -88,5 +88,5 @@ INSERT INTO task_dependencies (predecessor_id, successor_id, goal_id) VALUES
 -- --------------------------------------------------------------
 -- Habit: recurring template feeding into the same goal
 -- --------------------------------------------------------------
-INSERT INTO habits (id, node_id, goal_id, title, frequency, target_time, streak_count) VALUES
+INSERT INTO habits (id, nodeId, goalId, title, frequency, targetTime, streakCount) VALUES
   ('habit-1', 'habit-1', 'goal-1', 'Daily Practice Problems', 'daily', 20, 0);

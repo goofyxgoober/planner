@@ -10,8 +10,10 @@ use crate::models::node::{Action,NodeType};
 #[serde(rename_all = "camelCase")]
 pub struct Goal {
     id: String,
-    node_id:String,
+    #[sqlx(rename = "nodeId")]
+    node_id: String,
     title: String,
+    #[sqlx(rename = "targetDate")]
     target_date: String,
     status: String,
     version: i64,
@@ -62,10 +64,11 @@ impl Goal {
         let self_json = json!({
             "type":"GOAL",
             "id":self.id, 
-            "node_id":self.node_id,
+            "nodeId":self.node_id,
             "title":self.title, 
-            "target_date":self.target_date, 
-            "status":self.status
+            "targetDate":self.target_date, 
+            "status":self.status,
+            "version":self.version
         }); 
         self_json.to_string() 
     }
@@ -75,7 +78,7 @@ impl Goal {
 }
 
 pub async fn upload_goal(pool: &SqlitePool, goal: Goal) -> anyhow::Result<Goal> {
-    let query = "INSERT INTO goals (id,node_id,title,target_date,status,version) VALUES ($1,$2,$3,$4,&5,&6)";
+    let query = "INSERT INTO goals (id,nodeId,title,targetDate,status,version) VALUES ($1,$2,$3,$4,&5,&6)";
     sqlx::query(query)
         .bind(&goal.id)
         .bind(&goal.node_id)
@@ -104,7 +107,7 @@ pub async fn delete_goal(pool:&SqlitePool, goal:Goal)->anyhow::Result<()>{
     Ok(())
 }
 pub async fn save_goal(pool:&SqlitePool,goal:&Goal)->anyhow::Result<()>{
-    let query = "UPDATE goals SET node_id = ?, title = ?, target_date = ?, status = ? WHERE id = ?;";
+    let query = "UPDATE goals SET nodeId = ?, title = ?, targetDate = ?, status = ? WHERE id = ?;";
     sqlx::query(query)
     .bind(&goal.node_id)
     .bind(&goal.title)
@@ -118,7 +121,7 @@ pub async fn save_goal(pool:&SqlitePool,goal:&Goal)->anyhow::Result<()>{
 
 pub async fn get_goals(pool: &SqlitePool) -> anyhow::Result<Vec<Goal>> {
     let goals =
-        sqlx::query_as::<_, Goal>(r#"SELECT id,node_id,title,target_date,status,version FROM goals"#)
+        sqlx::query_as::<_, Goal>(r#"SELECT id,nodeId,title,targetDate,status,version FROM goals"#)
             .fetch_all(pool)
             .await?;
     Ok(goals)
@@ -126,7 +129,7 @@ pub async fn get_goals(pool: &SqlitePool) -> anyhow::Result<Vec<Goal>> {
 
 pub async fn get_goal(pool: &SqlitePool,node_id:&str) -> anyhow::Result<Goal> {
     let goal =
-        sqlx::query_as::<_, Goal>(r#"SELECT id,node_id,title,target_date,status,version FROM goals WHERE id=$1"#)
+        sqlx::query_as::<_, Goal>(r#"SELECT id,nodeId,title,targetDate,status,version FROM goals WHERE id=$1"#)
             .bind(node_id)
             .fetch_one(pool)
             .await?;
