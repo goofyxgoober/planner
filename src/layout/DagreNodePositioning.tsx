@@ -7,7 +7,9 @@ import {
   type Edge,
 } from "@xyflow/react";
 import dagre from "@dagrejs/dagre";
-
+import { graphStore } from "../state/graphStore";
+import { historyStore } from "../state/historyStore";
+import { useStore } from "zustand";
 export interface DagreGraphOptions {
   rankdir?: "TB" | "BT" | "LR" | "RL";
   nodesep?: number;
@@ -15,7 +17,9 @@ export interface DagreGraphOptions {
   [key: string]: unknown;
 }
 
+import type {Op} from "../types";
 interface DagreNodePositioningProps {
+  goalId:string;
   Options: DagreGraphOptions;
   SetNodes: React.Dispatch<React.SetStateAction<Node[]>>;
   SetEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
@@ -24,13 +28,15 @@ interface DagreNodePositioningProps {
 }
 
 const DagreNodePositioning: React.FC<DagreNodePositioningProps> = ({
+  goalId,
   Options,
   SetNodes,
   SetEdges,
   SetViewIsFit,
 }) => {
   const { fitView, getNodes, getEdges } = useReactFlow();
-  
+  const [pushToPendingOp] = useStore(historyStore, (state) => [state.pushToPendingOp]);
+
   // This hook turns true ONLY when all nodes have been rendered and measured in the DOM
   const nodesInitialized = useNodesInitialized();
 
@@ -100,6 +106,14 @@ const DagreNodePositioning: React.FC<DagreNodePositioningProps> = ({
       };
     });
 
+    let opList:Array<Op> = [];
+    layoutedNodes.forEach((node)=>{
+      const nodeId = node.id;
+      const [x,y] = [node.position.x,node.position.y]
+      const op:Op = {type:"move_node",id:nodeId,x:x,y:y};
+      opList.push(op);
+    })
+    pushToPendingOp(goalId,{type:"batch",ops:opList});
     SetNodes(layoutedNodes);
     SetEdges(currentEdges);
 

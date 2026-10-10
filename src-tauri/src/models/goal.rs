@@ -25,7 +25,11 @@ impl Action for Goal{
         return &self.id
     }
     fn get_json_str(&self)->String {
-        self.get_json_str()
+        match serde_json::to_value(self){
+            Err(err) => panic!("Task json string not-avail:{err}"),
+            Ok(val) => val.to_string()
+
+        }
     }
     fn get_node_type(&self)->NodeType {
         NodeType::GOAL

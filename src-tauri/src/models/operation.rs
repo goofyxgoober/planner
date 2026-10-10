@@ -65,9 +65,13 @@ pub fn get_valid_dag<'a>(
         DagError::NodeError { message: "goal graph doesn't exist in memory".to_string() }
     })?;
 
+    
+    /* Gotta implement a curr-version update in the db after handling operation and fix version mismatch issue
     if dag.fetch_goal().get_version_num() != base_version {
+        let curr_num =  dag.fetch_goal().get_version_num();
+        println!("current version:{curr_num}, frontend version:{base_version}");
         return Err(DagError::GraphError { message: "base versions do not match, try again".to_string() })?;
-    }
+    }*/
 
     Ok(dag)
 }
@@ -90,6 +94,7 @@ pub async fn apply_op(dag_map: &mut HashMap<String, Dag>,pool:&sqlx::SqlitePool,
     }
 
     if let Op::Batch { ops } = op{
+        println!("BATCH HIT");
         for sub_op in ops {
             next_version+=1;
             let (inv_op,_,_) = Box::pin(apply_op(dag_map, pool,sub_op,&next_version,goal_id)).await?; // recursion needs boxing (async fn)

@@ -132,6 +132,7 @@ export const GraphView: React.FC<GraphViewProps> = ({
       )}
       <ReactFlowProvider>
         <DagreNodePositioning
+          goalId={goalId}
           Options={layoutOptions}
           SetNodes={setNodes}
           SetEdges={setEdges}
