@@ -190,7 +190,7 @@ pub async fn apply_op(dag_map: &mut HashMap<String, Dag>,pool:&sqlx::SqlitePool,
             println!("Got Node");
             let prev_x = node.x.unwrap_or(x.clone());
             let prev_y = node.y.unwrap_or(x.clone());
-            
+            println!("x:{x},y:{y}"); 
             dag.modify_node(id, None, Some(x.clone()), Some(y.clone())).await?;
             println!("Modified node");
             snapshot = dag.to_snapshot();

@@ -187,13 +187,20 @@ pub async fn save_node(pool:&SqlitePool, node:&mut Node, position:(Option<f32>,O
         }
     }
     let (x,y) =position;
+    let node_id = String::from(&node.id);
+    println!("Node id:{node_id}");
     let query = "UPDATE nodes SET x = ?, y = ? WHERE id = ?;";
-    sqlx::query(query)
+    //Position changes aren't being written at all!!
+    let result = sqlx::query(query)
     .bind(&x)
     .bind(&y)
     .bind(&node.id)
     .execute(pool)
     .await?;
-
+    
+    if result.rows_affected() == 0 {
+        panic!("No node found with id: {}", node.id);
+    }
+    println!("Successfully updated node in db");
     Ok(())
 }

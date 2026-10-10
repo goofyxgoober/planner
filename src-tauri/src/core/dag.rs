@@ -167,11 +167,14 @@ impl Dag{
             Some(node) => node
         };
 
+        if(json_str.is_none()){
+            println!("jsonstr none");
+        }
         let use_json_str:String = match json_str{
             None => node.item.get_json_str(),
             Some(ele)=> ele
         };
-        if x.is_some() && y.is_some(){
+        if x.is_none() && y.is_none(){
             x = node.x.clone(); 
             y = node.y.clone();
         }
@@ -180,8 +183,12 @@ impl Dag{
         println!("Json str:{json_str_print}");
         node.item.modify_fields(use_json_str.clone())?;
         println!("modified fields{use_json_str}");
-        save_node(&self.pool, node, (x,y)).await?;
-        Ok(())
+        match save_node(&self.pool, node, (x,y)).await{
+            Err(err)=> panic!("Error Saving Node:{err}"),
+            Ok(_) => Ok(()),
+
+        }
+        //Ok(())
     }
 
     pub async fn delete_node(&mut self,id:&str)->anyhow::Result<()>{

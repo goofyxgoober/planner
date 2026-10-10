@@ -6,7 +6,8 @@ use serde::{Serialize,Deserialize};
 
 use crate::models::node::{Action,NodeType};
 use serde_json::json;
-
+use core::fmt;
+use std::fmt::{Display};
 #[derive(FromRow, Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Task {
@@ -49,12 +50,17 @@ impl Action for Task{
         &self.id
     }
     fn get_json_str(&self)->String {
-        self.get_json_str()
+        match serde_json::to_value(self){
+            Err(err) => panic!("Task json string not-avail:{err}"),
+            Ok(val) => val.to_string()
+
+        }
     }
     fn get_node_type(&self)->NodeType {
         NodeType::TASK
     }
     fn modify_fields(&mut self,json_str:String)->anyhow::Result<()>{
+        println!("Object debug:{self}");
         let obj:Task = serde_json::from_str(&json_str)?;
         self.title = obj.title;
         self.task_type = obj.task_type;
@@ -76,6 +82,12 @@ impl Action for Task{
     
 }
 
+impl Display for Task{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f,"({},{},{},{},{},{},{},{},{},)",self.title,self.task_type,self.base_duration,self.scheduled_start,
+        self.scheduled_end,self.urgency_score,self.importance_score,self.priority_weight,self.status)
+    }
+}
 
 impl Task{
     pub fn new(

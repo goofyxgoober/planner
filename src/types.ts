@@ -27,8 +27,8 @@ export interface Task {
   title: string;
   taskType: string;
   baseDuration: number;
-  scheduleStart: string;
-  scheduleEnd: string;
+  scheduledStart: string;
+  scheduledEnd: string;
   urgencyScore: number;
   importanceScore: number;
   priorityWeight: number;
